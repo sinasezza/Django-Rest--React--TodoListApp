@@ -38,10 +38,15 @@ def task_detail(request, pk):
 
 @api_view(['POST'])
 def task_create(request):
-	serializer = serializers.TaskSerializer(data=request.data)
+	serializer = serializers.TaskCreateSerializer(data=request.data)
+	
+	# print(f"serializer is {serializer}")
 
-	if serializer.is_valid():
+	if serializer.is_valid(): # i want to be valid :\
 		serializer.save()
+	else:
+		print('the serializer is not valid !!!')
+		return Response(data={"Error Message : Something wrong"},status=403)
 
 	return Response(serializer.data)
 

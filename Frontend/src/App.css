@@ -44,11 +44,16 @@ body{
 }
 
 .task-wrapper{
+  /* background-color: lightblue; */
     cursor: pointer;
     border-bottom: 1px solid  #e9e9e9;
     color: #686868;
     margin:5px;
     padding:20px;
+}
+
+.task-wrapper > div {
+  flex: 7;
 }
 
 .task-wrapper:hover{
