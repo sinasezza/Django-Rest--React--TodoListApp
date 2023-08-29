@@ -16,6 +16,7 @@ class App extends React.Component {
     this.fetchTasks = this.fetchTasks.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.getCookie = this.getCookie.bind(this);
   }
 
   componentWillMount() {
@@ -35,7 +36,7 @@ class App extends React.Component {
   }
 
   handleChange(e) {
-    var name = e.target.name;
+    // var name = e.target.name;
     var value = e.target.value;
     // console.log(`name is ${name} , and value is ${value}`);
     this.setState({
@@ -46,34 +47,72 @@ class App extends React.Component {
     });
   }
 
+  getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      var cookies = document.cookie.split(";");
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
   handleSubmit(e) {
     e.preventDefault();
     console.log(`Item is : ${this.state.activeItem}`);
-    
+
+    let csrfToken = this.getCookie('csrftoken');
     let url = "http://127.0.0.1:8000/api/task-create/";
-    fetch(url,{
-      method : 'POST',
-      headers : {
-        'Content-type' : 'application/json',
-      },
-      body : JSON.stringify(this.state.activeItem),
-    }).then(response => {
-      console.log(`response is : ${response.json()}`)
-      this.fetchTasks()
+
+    if(this.state.editing === true) {
+      url = `http://127.0.0.1:8000/api/task-update/${this.state.activeItem.id}/`;
       this.setState({
-        activeItem : {
-          id: null,
-          title: "",
-          description: "",
-        }
+        editing : false,
       })
-    }).catch(err => {
-      console.log(`Error : ${err}`)
+    }
+
+    
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        "X-CSRFToken" : csrfToken,
+      },
+      body: JSON.stringify(this.state.activeItem),
+    })
+      .then((response) => {
+        console.log(`response is : ${response.json()}`);
+        this.fetchTasks();
+        this.setState({
+          activeItem: {
+            id: null,
+            title: "",
+            description: "",
+          },
+        });
+      })
+      .catch((err) => {
+        console.log(`Error : ${err}`);
+      });
+  }
+
+
+  startEdit(task) {
+    this.setState({
+      activeItem : task,
+      editing : true,
     })
   }
 
   render() {
     var tasks = this.state.todoList;
+    var self = this
     return (
       <div className="container">
         <div id="task-container">
@@ -86,6 +125,7 @@ class App extends React.Component {
                     id="title"
                     type="text"
                     name="title"
+                    value={this.state.activeItem.title}
                     placeholder="Add task.."
                     onChange={this.handleChange}
                   />
@@ -117,7 +157,7 @@ class App extends React.Component {
 
                   <div style={{ flex: 2 }}>
                     <button
-                      // onClick={() => self.startEdit(task)}
+                      onClick={() => self.startEdit(task)}
                       className="btn btn-sm btn-outline-info"
                     >
                       Edit

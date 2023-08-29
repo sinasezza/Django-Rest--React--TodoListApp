@@ -12,7 +12,7 @@ class TaskSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         return super().save(**kwargs)
     
-class TaskCreateSerializer(serializers.ModelSerializer):
+class TaskCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Task
         fields = ('id', 'title', 'description')

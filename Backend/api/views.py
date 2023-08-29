@@ -38,7 +38,7 @@ def task_detail(request, pk):
 
 @api_view(['POST'])
 def task_create(request):
-	serializer = serializers.TaskCreateSerializer(data=request.data)
+	serializer = serializers.TaskCreateUpdateSerializer(data=request.data)
 	
 	# print(f"serializer is {serializer}")
 
@@ -55,7 +55,7 @@ def task_create(request):
 @api_view(['POST'])
 def task_update(request, pk):
 	task = models.Task.objects.get(id=pk)
-	serializer = serializers.TaskSerializer(instance=task, data=request.data)
+	serializer = serializers.TaskCreateUpdateSerializer(instance=task, data=request.data)
 
 	if serializer.is_valid():
 		serializer.save()
